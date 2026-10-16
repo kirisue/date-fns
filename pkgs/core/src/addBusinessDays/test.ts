@@ -16,6 +16,40 @@ describe("addBusinessDays", () => {
     expect(result).toEqual(new Date(2014, 8 /* Sep */, 1));
   });
 
+  it.each([
+    [0.5, 10],
+    [-0.5, 10],
+    [1.5, 13],
+    [-1.5, 9],
+    [4.5, 16],
+    [-4.5, 6],
+    [5.5, 17],
+    [-5.5, 3],
+    [6.5, 20],
+    [-6.5, 2],
+  ])("truncates fractional amount %s toward zero", (amount, day) => {
+    const result = addBusinessDays(new Date(2020, 0 /* Jan */, 10), amount);
+    expect(result).toEqual(new Date(2020, 0 /* Jan */, day));
+  });
+
+  it.each([
+    [11, 0.5, 11],
+    [11, -0.5, 11],
+    [12, 0.5, 12],
+    [12, -0.5, 12],
+    [11, 5.5, 17],
+    [12, -5.5, 6],
+  ])(
+    "truncates fractional amounts when starting on a weekend (%s, %s)",
+    (startDay, amount, endDay) => {
+      const result = addBusinessDays(
+        new Date(2020, 0 /* Jan */, startDay),
+        amount,
+      );
+      expect(result).toEqual(new Date(2020, 0 /* Jan */, endDay));
+    },
+  );
+
   it("returns the Monday when 1 day is added on the Friday", () => {
     expect(addBusinessDays(new Date(2020, 0 /* Jan */, 10), 1)).toEqual(
       // Friday
